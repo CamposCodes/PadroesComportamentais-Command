@@ -1,0 +1,7 @@
+/workspaces/PadroesComportamentais-Command/src/main/java/padroescomportamentais/command/cafeteria/AtualizarEstoqueComando.java
+/workspaces/PadroesComportamentais-Command/src/main/java/padroescomportamentais/command/cafeteria/CancelarPedidoComando.java
+/workspaces/PadroesComportamentais-Command/src/main/java/padroescomportamentais/command/cafeteria/Comando.java
+/workspaces/PadroesComportamentais-Command/src/main/java/padroescomportamentais/command/cafeteria/Estoque.java
+/workspaces/PadroesComportamentais-Command/src/main/java/padroescomportamentais/command/cafeteria/FazerPedidoComando.java
+/workspaces/PadroesComportamentais-Command/src/main/java/padroescomportamentais/command/cafeteria/GerenciadorPedidos.java
+/workspaces/PadroesComportamentais-Command/src/main/java/padroescomportamentais/command/cafeteria/Pedido.java

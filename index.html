@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padrão Command - Sistema de Cafeteria</title>
+    <style>
+        :root {
+            --bg: #f6f8fa;
+            --surface: #ffffff;
+            --muted: #6a737d;
+            --border: #e1e4e8;
+            --accent: #0366d6;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #d73a49;
+            --shadow: 0 1px 2px rgba(27, 31, 35, 0.04), 0 8px 24px rgba(27, 31, 35, 0.08);
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: var(--bg);
+            color: #24292e;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 0 0 24px 0;
+            color: #0b2d4a;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            margin: 0 0 14px 0;
+            color: #24292e;
+        }
+
+        h3 {
+            font-size: 1rem;
+            margin: 0 0 12px 0;
+            color: #24292e;
+        }
+
+        h4 {
+            font-size: 0.95rem;
+            margin: 0 0 8px 0;
+            color: #24292e;
+        }
+
+        p {
+            margin: 0 0 12px 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .header {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            margin-bottom: 12px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .stat {
+            padding: 12px;
+            background: #f6f8fa;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: #24292e;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        button:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(3, 102, 214, 0.2);
+        }
+
+        button.primary {
+            background: var(--accent);
+            color: white;
+            border-color: transparent;
+        }
+
+        button.secondary {
+            background: var(--success);
+            color: white;
+            border-color: transparent;
+        }
+
+        button.warning {
+            background: var(--warning);
+            color: white;
+            border-color: transparent;
+        }
+
+        button.danger {
+            background: var(--danger);
+            color: white;
+            border-color: transparent;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .timeline-visual {
+            background: linear-gradient(180deg, #f8fafb, #ffffff);
+            border: 2px solid var(--accent);
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .timeline-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .timeline-item {
+            width: 120px;
+            height: 60px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border: 2px solid var(--border);
+            background: var(--surface);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+            padding: 6px;
+            color: #24292e;
+        }
+
+        .timeline-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(3, 102, 214, 0.2);
+        }
+
+        .timeline-item.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.2);
+        }
+
+        .timeline-item.executed {
+            background: #e5f5e5;
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .timeline-arrow {
+            color: var(--accent);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .approach {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .approach-title {
+            font-weight: 700;
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+            color: white;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .approach.bad .approach-title {
+            background: var(--danger);
+        }
+
+        .approach.good .approach-title {
+            background: var(--success);
+        }
+
+        .code-block {
+            background: #f6f8fa;
+            border-left: 3px solid var(--border);
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+
+        .approach.bad .code-block {
+            border-left-color: var(--danger);
+            background: #ffe5e5;
+            color: #6e1515;
+        }
+
+        .approach.good .code-block {
+            border-left-color: var(--success);
+            background: #e5f5e5;
+            color: #155e15;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .metric {
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .metric.bad {
+            background: #ffe5e5;
+            border: 1px solid var(--danger);
+        }
+
+        .metric.good {
+            background: #e5f5e5;
+            border: 1px solid var(--success);
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 4px 0;
+        }
+
+        .metric.bad .metric-value {
+            color: var(--danger);
+        }
+
+        .metric.good .metric-value {
+            color: var(--success);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .result-box {
+            background: linear-gradient(180deg, #fff9e6, #ffe6cc);
+            border: 2px dashed #ffc107;
+            border-radius: 6px;
+            padding: 18px;
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.9rem;
+        }
+
+        .result-box h4 {
+            color: #d97706;
+            margin: 0 0 8px 0;
+        }
+
+        .result-box p {
+            color: #b45309;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .pedido-display {
+            background: linear-gradient(180deg, #f0f9ff, #e0f2fe);
+            border: 2px solid var(--accent);
+            border-radius: 6px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .pedido-status {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #0b2d4a;
+            margin-bottom: 8px;
+        }
+
+        .estoque-display {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+
+        .estoque-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px;
+            margin: 4px 0;
+            background: #f6f8fa;
+            border-radius: 4px;
+        }
+
+        .estoque-label {
+            font-weight: 600;
+            color: #24292e;
+        }
+
+        .estoque-value {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .benefit-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .benefit-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .benefit-title {
+            font-weight: 600;
+            color: #0b2d4a;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .benefit-description {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .concept {
+            padding: 12px;
+            background: #f6f8fa;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .concept strong {
+            display: block;
+            color: #0b2d4a;
+            margin-bottom: 4px;
+        }
+
+        .concept p {
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 24px 0;
+        }
+
+        .expandable-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 12px;
+            margin: 0 0 14px 0;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 6px;
+        }
+
+        .expandable-header h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .expandable-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent);
+            transition: transform 0.3s ease;
+        }
+
+        .expandable-header.collapsed .expandable-icon {
+            transform: rotate(-90deg);
+        }
+
+        .expandable-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            opacity: 1;
+            margin-bottom: 16px;
+        }
+
+        .expandable-header.collapsed ~ .expandable-content {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--muted);
+        }
+
+        @media (max-width: 1000px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 12px auto;
+            }
+
+            h1 {
+                font-size: 1.2rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .control-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .timeline-item {
+                width: 80px;
+                height: 50px;
+                font-size: 0.7rem;
+            }
+
+            .timeline-arrow {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🍽️ Padrão Command - Sistema de Cafeteria</h1>
+            <p>Explore interativamente como o padrão Command encapsula solicitações como objetos, permitindo execução, desfazer e logging elegante.</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number" id="comandosExecutados">0</div>
+                    <div class="stat-label">Comandos Executados</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="comandosDesfeitos">0</div>
+                    <div class="stat-label">Comandos Desfeitos</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="cafeEstoque">10</div>
+                    <div class="stat-label">Café em Estoque</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="cervejaEstoque">10</div>
+                    <div class="stat-label">Cerveja em Estoque</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Interativa -->
+        <div class="card">
+            <h2>💡 Demonstração Interativa</h2>
+            <p>Simule operações de pedido em uma cafeteria, executando comandos e revertendo ações.</p>
+
+            <div class="section-title">Estado Atual</div>
+            <div class="pedido-display">
+                <div class="pedido-status" id="pedidoStatus">Pedido Pendente</div>
+                <p style="margin: 0; font-size: 0.85rem; color: var(--muted);" id="pedidoMensagem">Clique em um comando para começar</p>
+            </div>
+
+            <div class="estoque-display">
+                <div class="estoque-item">
+                    <span class="estoque-label">Café:</span>
+                    <span class="estoque-value" id="cafeDisplay">10</span>
+                </div>
+                <div class="estoque-item">
+                    <span class="estoque-label">Cerveja:</span>
+                    <span class="estoque-value" id="cervejaDisplay">10</span>
+                </div>
+            </div>
+
+            <div class="section-title">Executar Comandos</div>
+            <div class="control-group">
+                <button class="primary" onclick="executarComando('fazerPedido')">🍽️ Fazer Pedido</button>
+                <button class="warning" onclick="executarComando('cancelarPedido')">❌ Cancelar Pedido</button>
+                <button class="secondary" onclick="executarComando('atualizarEstoque')">📦 Atualizar Estoque</button>
+            </div>
+
+            <div class="section-title">Histórico de Comandos Executados</div>
+            <div class="timeline-visual">
+                <div class="timeline-row" id="timelineContainer">
+                    <div style="color: var(--muted); font-size: 0.9rem;">Nenhum comando executado ainda...</div>
+                </div>
+            </div>
+
+            <div class="section-title">Ações</div>
+            <div class="control-group">
+                <button class="danger" onclick="desfazerUltimo()">⏮️ Desfazer Último</button>
+                <button class="danger" onclick="limparHistorico()">🗑️ Limpar Histórico</button>
+            </div>
+        </div>
+
+        <!-- Comparação com/sem Command -->
+        <div class="card">
+            <h2>⚖️ Comparação: Com vs Sem o Padrão Command</h2>
+            <div class="comparison-grid">
+                <!-- SEM Command -->
+                <div class="approach bad">
+                    <div class="approach-title">❌ SEM Padrão Command</div>
+                    <div class="code-block">
+// Código espalhado e difícil de gerenciar
+class Cafeteria {
+    void fazerPedido() {
+        // Lógica hardcoded aqui
+        estoque.cafe--;
+        estoque.cerveja--;
+        pedido.status = "Feito";
+    }
+    
+    void cancelarPedido() {
+        // Lógica hardcoded aqui
+        estoque.cafe++;
+        estoque.cerveja++;
+        pedido.status = "Cancelado";
+    }
+    
+    // Sem histórico, sem desfazer!
+}
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric bad">
+                            <div class="metric-label">Manutenibilidade</div>
+                            <div class="metric-value">🔴 Difícil</div>
+                        </div>
+                        <div class="metric bad">
+                            <div class="metric-label">Extensibilidade</div>
+                            <div class="metric-value">🔴 Limitada</div>
+                        </div>
+                        <div class="metric bad">
+                            <div class="metric-label">Desfazer</div>
+                            <div class="metric-value">🔴 Impossível</div>
+                        </div>
+                        <div class="metric bad">
+                            <div class="metric-label">Logging</div>
+                            <div class="metric-value">🔴 Manual</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COM Command -->
+                <div class="approach good">
+                    <div class="approach-title">✅ COM Padrão Command</div>
+                    <div class="code-block">
+// Comandos encapsulados e reutilizáveis
+interface Comando {
+    void executar();
+    void cancelar();
+}
+
+class FazerPedidoComando implements Comando {
+    @Override
+    void executar() { /* lógica */ }
+    @Override
+    void cancelar() { /* reverter */ }
+}
+
+// Gerenciador com histórico
+class GerenciadorPedidos {
+    Stack&lt;Comando&gt; executados = new Stack&lt;&gt;();
+    
+    void executarComando(Comando cmd) {
+        cmd.executar();
+        executados.push(cmd);
+    }
+    
+    void desfazerUltimo() {
+        if (!executados.isEmpty()) {
+            executados.pop().cancelar();
+        }
+    }
+}
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric good">
+                            <div class="metric-label">Manutenibilidade</div>
+                            <div class="metric-value">🟢 Fácil</div>
+                        </div>
+                        <div class="metric good">
+                            <div class="metric-label">Extensibilidade</div>
+                            <div class="metric-value">🟢 Alta</div>
+                        </div>
+                        <div class="metric good">
+                            <div class="metric-label">Desfazer</div>
+                            <div class="metric-value">🟢 Automático</div>
+                        </div>
+                        <div class="metric good">
+                            <div class="metric-label">Logging</div>
+                            <div class="metric-value">🟢 Integrado</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefícios -->
+        <div class="card">
+            <h2>🎁 Benefícios do Padrão Command</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔄</div>
+                    <div class="benefit-title">Desfazer/Refazer</div>
+                    <div class="benefit-description">Permite reverter operações facilmente mantendo histórico.</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📋</div>
+                    <div class="benefit-title">Encapsulamento</div>
+                    <div class="benefit-description">Isola a lógica de execução em objetos independentes.</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">⏰</div>
+                    <div class="benefit-title">Agendamento</div>
+                    <div class="benefit-description">Comandos podem ser enfileirados e executados posteriormente.</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📊</div>
+                    <div class="benefit-title">Logging</div>
+                    <div class="benefit-description">Facilita auditoria e rastreamento de operações.</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔗</div>
+                    <div class="benefit-title">Separação de Responsabilidades</div>
+                    <div class="benefit-description">Quem invoca não precisa conhecer detalhes da execução.</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🧩</div>
+                    <div class="benefit-title">Composição</div>
+                    <div class="benefit-description">Comandos podem ser compostos para operações complexas.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Estrutura do Padrão -->
+        <div class="card">
+            <div class="expandable-header" onclick="toggleExpandable(this)">
+                <h2>🏗️ Estrutura do Padrão Command</h2>
+                <span class="expandable-icon">+</span>
+            </div>
+            <div class="expandable-content">
+                <div class="two-column">
+                    <div>
+                        <h3>Componentes Principais</h3>
+                        <div class="concept-grid">
+                            <div class="concept">
+                                <strong>🎬 Command (Comando)</strong>
+                                <p>Interface que declara executar() e cancelar().</p>
+                            </div>
+                            <div class="concept">
+                                <strong>🍽️ ConcreteCommand</strong>
+                                <p>Implementações específicas como FazerPedidoComando.</p>
+                            </div>
+                            <div class="concept">
+                                <strong>📋 Invoker (Gerenciador)</strong>
+                                <p>Executa comandos e mantém histórico para desfazer.</p>
+                            </div>
+                            <div class="concept">
+                                <strong>🎯 Receiver (Pedido/Estoque)</strong>
+                                <p>Objetos que realizam o trabalho real.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Fluxo de Execução</h3>
+                        <div style="background: #f6f8fa; border-radius: 6px; padding: 12px; font-size: 0.9rem;">
+                            <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                                <strong>1️⃣ Criação</strong><br>
+                                <span style="color: var(--muted);">Cliente cria comando concreto (ex: FazerPedidoComando)</span>
+                            </div>
+                            <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                                <strong>2️⃣ Configuração</strong><br>
+                                <span style="color: var(--muted);">Comando recebe referências para Receiver (Pedido, Estoque)</span>
+                            </div>
+                            <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                                <strong>3️⃣ Execução</strong><br>
+                                <span style="color: var(--muted);">Invoker chama executar(), comando delega para Receiver</span>
+                            </div>
+                            <div>
+                                <strong>4️⃣ Desfazer</strong><br>
+                                <span style="color: var(--muted);">Invoker chama cancelar() para reverter operação</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Casos de Uso -->
+        <div class="card">
+            <div class="expandable-header" onclick="toggleExpandable(this)">
+                <h2>🎯 Casos de Uso Práticos</h2>
+                <span class="expandable-icon">+</span>
+            </div>
+            <div class="expandable-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="background: #f0f9ff; border-left: 3px solid var(--accent); padding: 12px; border-radius: 4px;">
+                        <h4>🍽️ Sistema de Restaurante</h4>
+                        <p style="margin: 0; font-size: 0.9rem;">Gerenciar pedidos com possibilidade de cancelamento e reembolso automático.</p>
+                    </div>
+                    <div style="background: #f0f9ff; border-left: 3px solid var(--accent); padding: 12px; border-radius: 4px;">
+                        <h4>💻 Editor de Texto</h4>
+                        <p style="margin: 0; font-size: 0.9rem;">Implementar Ctrl+Z para desfazer edições, recortar, colar, etc.</p>
+                    </div>
+                    <div style="background: #f0f9ff; border-left: 3px solid var(--accent); padding: 12px; border-radius: 4px;">
+                        <h4>🎮 Jogos</h4>
+                        <p style="margin: 0; font-size: 0.9rem;">Sistema de replay, macros e comandos de IA.</p>
+                    </div>
+                    <div style="background: #f0f9ff; border-left: 3px solid var(--accent); padding: 12px; border-radius: 4px;">
+                        <h4>🏦 Transações Bancárias</h4>
+                        <p style="margin: 0; font-size: 0.9rem;">Operações que podem ser revertidas em caso de erro.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementação Java -->
+        <div class="card">
+            <div class="expandable-header" onclick="toggleExpandable(this)">
+                <h2>💻 Implementação em Java (Resumo)</h2>
+                <span class="expandable-icon">+</span>
+            </div>
+            <div class="expandable-content">
+                <div style="background: #e5f5e5; border-left: 3px solid var(--success); padding: 12px; border-radius: 4px; margin-bottom: 16px; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.5; overflow-x: auto;">
+<pre style="margin: 0;">
+<strong>// Interface Command</strong>
+public interface Comando {
+    void executar();
+    void cancelar();
+}
+
+<strong>// Concrete Command - Fazer Pedido</strong>
+public class FazerPedidoComando implements Comando {
+    private Pedido pedido;
+    private Estoque estoque;
+    
+    public FazerPedidoComando(Pedido pedido, Estoque estoque) {
+        this.pedido = pedido;
+        this.estoque = estoque;
+    }
+    
+    @Override
+    public void executar() {
+        estoque.setQuantidadeCafe(estoque.getQuantidadeCafe() - 1);
+        estoque.setQuantidadeCerveja(estoque.getQuantidadeCerveja() - 1);
+        pedido.setSituacao("Pedido feito");
+    }
+    
+    @Override
+    public void cancelar() {
+        estoque.setQuantidadeCafe(estoque.getQuantidadeCafe() + 1);
+        estoque.setQuantidadeCerveja(estoque.getQuantidadeCerveja() + 1);
+        pedido.setSituacao("Pedido cancelado");
+    }
+}
+
+<strong>// Invoker - Gerenciador de Pedidos</strong>
+public class GerenciadorPedidos {
+    private Stack&lt;Comando&gt; comandosExecutados = new Stack&lt;&gt;();
+    
+    public void executarComando(Comando comando) {
+        comando.executar();
+        comandosExecutados.push(comando);
+    }
+    
+    public void cancelarUltimoComando() {
+        if (!comandosExecutados.isEmpty()) {
+            Comando comando = comandosExecutados.pop();
+            comando.cancelar();
+        }
+    }
+}
+</pre>
+                </div>
+                <div class="result-box">
+                    <h4>✅ Vantagens da Implementação</h4>
+                    <p>Separação clara entre invocação e execução, histórico automático, testes unitários fáceis e extensibilidade plug-and-play.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testes Automatizados -->
+        <div class="card">
+            <div class="expandable-header" onclick="toggleExpandable(this)">
+                <h2>🧪 Testes Automatizados (JUnit 5)</h2>
+                <span class="expandable-icon">+</span>
+            </div>
+            <div class="expandable-content">
+                <div style="background: #f6f8fa; border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div style="padding: 10px; background: white; border-radius: 4px; border-left: 3px solid var(--success);">
+                            <strong style="color: var(--success);">✓ Teste: Executar Fazer Pedido</strong>
+                            <p style="margin: 4px 0; font-size: 0.85rem;">Verifica se pedido é marcado como feito e estoque decrementado.</p>
+                        </div>
+                        <div style="padding: 10px; background: white; border-radius: 4px; border-left: 3px solid var(--success);">
+                            <strong style="color: var(--success);">✓ Teste: Cancelar Pedido</strong>
+                            <p style="margin: 4px 0; font-size: 0.85rem;">Confirma que cancelar() reverte o estado do pedido.</p>
+                        </div>
+                        <div style="padding: 10px; background: white; border-radius: 4px; border-left: 3px solid var(--success);">
+                            <strong style="color: var(--success);">✓ Teste: Desfazer Comando</strong>
+                            <p style="margin: 4px 0; font-size: 0.85rem;">Garante que cancelarUltimoComando() reverte a última operação.</p>
+                        </div>
+                        <div style="padding: 10px; background: white; border-radius: 4px; border-left: 3px solid var(--success);">
+                            <strong style="color: var(--success);">✓ Teste: Atualizar Estoque</strong>
+                            <p style="margin: 4px 0; font-size: 0.85rem;">Valida que atualizarEstoque() altera quantidades corretamente.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-box">
+                    <h4>📊 Resultado: 4/4 Testes Passando</h4>
+                    <p>Cobertura completa com JUnit 5 + Mockito para isolamento de dependências.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conclusão -->
+        <div class="card">
+            <h2>🎓 Conclusão</h2>
+            <p>O padrão <strong>Command</strong> é essencial quando você precisa:</p>
+            <ul style="margin: 12px 0; padding-left: 20px;">
+                <li>Encapsular operações como objetos</li>
+                <li>Implementar funcionalidades de desfazer/refazer</li>
+                <li>Agendar ou enfileirar operações</li>
+                <li>Adicionar logging ou auditoria a operações</li>
+                <li>Separar quem invoca de quem executa</li>
+                <li>Criar interfaces para operações parametrizáveis</li>
+            </ul>
+            <p>Em Java, é implementado através de interfaces funcionais e coleções como Stack para histórico, oferecendo uma solução elegante e testável para gerenciamento de operações complexas.</p>
+        </div>
+    </div>
+
+    <script>
+        // Estado global
+        let comandosExecutados = [];
+        let cafeEstoque = 10;
+        let cervejaEstoque = 10;
+        let pedidoSituacao = "Pendente";
+        let comandosDesfeitos = 0;
+
+        // Mapeamento de comandos
+        const comandosMap = {
+            'fazerPedido': {
+                nome: 'Fazer Pedido',
+                emoji: '🍽️',
+                executar: () => {
+                    if (cafeEstoque > 0 && cervejaEstoque > 0) {
+                        cafeEstoque--;
+                        cervejaEstoque--;
+                        pedidoSituacao = "Pedido feito";
+                        return true;
+                    } else {
+                        alert('Estoque insuficiente!');
+                        return false;
+                    }
+                },
+                cancelar: () => {
+                    cafeEstoque++;
+                    cervejaEstoque++;
+                    pedidoSituacao = "Pedido cancelado";
+                }
+            },
+            'cancelarPedido': {
+                nome: 'Cancelar Pedido',
+                emoji: '❌',
+                executar: () => {
+                    pedidoSituacao = "Pedido cancelado";
+                    return true;
+                },
+                cancelar: () => {
+                    pedidoSituacao = "Pedido feito";
+                }
+            },
+            'atualizarEstoque': {
+                nome: 'Atualizar Estoque',
+                emoji: '📦',
+                executar: () => {
+                    cafeEstoque = Math.min(cafeEstoque + 5, 20); // Adiciona até 20
+                    cervejaEstoque = Math.min(cervejaEstoque + 5, 20);
+                    return true;
+                },
+                cancelar: () => {
+                    cafeEstoque = Math.max(cafeEstoque - 5, 0);
+                    cervejaEstoque = Math.max(cervejaEstoque - 5, 0);
+                }
+            }
+        };
+
+        function executarComando(tipo) {
+            const comando = comandosMap[tipo];
+            if (comando.executar()) {
+                comandosExecutados.push(tipo);
+                atualizarDisplay();
+                atualizarTimeline();
+                atualizarStats();
+            }
+        }
+
+        function atualizarDisplay() {
+            document.getElementById('pedidoStatus').textContent = pedidoSituacao;
+            document.getElementById('pedidoMensagem').textContent = `Último comando: ${comandosExecutados.length > 0 ? comandosMap[comandosExecutados[comandosExecutados.length - 1]].nome : 'Nenhum'}`;
+            document.getElementById('cafeDisplay').textContent = cafeEstoque;
+            document.getElementById('cervejaDisplay').textContent = cervejaEstoque;
+            document.getElementById('cafeEstoque').textContent = cafeEstoque;
+            document.getElementById('cervejaEstoque').textContent = cervejaEstoque;
+        }
+
+        function atualizarTimeline() {
+            const container = document.getElementById('timelineContainer');
+            
+            if (comandosExecutados.length === 0) {
+                container.innerHTML = '<div style="color: var(--muted); font-size: 0.9rem;">Nenhum comando executado ainda...</div>';
+                return;
+            }
+
+            let html = '';
+            comandosExecutados.forEach((tipo, indice) => {
+                const cmd = comandosMap[tipo];
+                html += `
+                    <div class="timeline-item executed">
+                        <div>${cmd.emoji}</div>
+                        <div>${cmd.nome}</div>
+                    </div>
+                `;
+                
+                if (indice < comandosExecutados.length - 1) {
+                    html += '<div class="timeline-arrow">→</div>';
+                }
+            });
+
+            container.innerHTML = html;
+        }
+
+        function desfazerUltimo() {
+            if (comandosExecutados.length === 0) {
+                alert('Não há comandos para desfazer!');
+                return;
+            }
+
+            const ultimoTipo = comandosExecutados.pop();
+            const comando = comandosMap[ultimoTipo];
+            comando.cancelar();
+            comandosDesfeitos++;
+            
+            atualizarDisplay();
+            atualizarTimeline();
+            atualizarStats();
+        }
+
+        function limparHistorico() {
+            if (comandosExecutados.length === 0) {
+                alert('O histórico já está vazio!');
+                return;
+            }
+
+            if (confirm('Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.')) {
+                comandosExecutados = [];
+                comandosDesfeitos = 0;
+                cafeEstoque = 10;
+                cervejaEstoque = 10;
+                pedidoSituacao = "Pendente";
+                
+                atualizarDisplay();
+                atualizarTimeline();
+                atualizarStats();
+            }
+        }
+
+        function atualizarStats() {
+            document.getElementById('comandosExecutados').textContent = comandosExecutados.length;
+            document.getElementById('comandosDesfeitos').textContent = comandosDesfeitos;
+        }
+
+        function toggleExpandable(header) {
+            header.classList.toggle('collapsed');
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            atualizarDisplay();
+            atualizarStats();
+        });
+    </script>
+</body>
+</html>

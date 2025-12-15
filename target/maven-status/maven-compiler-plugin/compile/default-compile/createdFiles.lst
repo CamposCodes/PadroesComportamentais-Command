@@ -1,0 +1,7 @@
+padroescomportamentais/command/cafeteria/GerenciadorPedidos.class
+padroescomportamentais/command/cafeteria/Pedido.class
+padroescomportamentais/command/cafeteria/Estoque.class
+padroescomportamentais/command/cafeteria/CancelarPedidoComando.class
+padroescomportamentais/command/cafeteria/Comando.class
+padroescomportamentais/command/cafeteria/FazerPedidoComando.class
+padroescomportamentais/command/cafeteria/AtualizarEstoqueComando.class
